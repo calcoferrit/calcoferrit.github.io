@@ -6,21 +6,22 @@
 <title>VTA Calcoferrit® — борьба с запахом и коррозией в канализационной сети</title>
 <meta name="description" content="VTA Calcoferrit® — биологическая и эффективная защита от образования запаха и коррозии в канализационной сети. Назначение, механизм действия, мониторинг H₂S, протоколы полевых измерений, частые вопросы.">
 <meta name="robots" content="index, follow">
-<meta name="color-scheme" content="light dark">
-<!-- Тема применяется до первой отрисовки — без мигания.
-     Приоритет: сохранённый ручной выбор → системная тема → светлая по умолчанию.
-     Здесь ставится только сохранённый выбор; при его отсутствии тему определяет CSS. -->
-<script>(function(){try{var t=localStorage.getItem('vta-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script>
+/* Тема применяется до отрисовки — без мигания.
+   Атрибут data-theme ставится ТОЛЬКО при сохранённом ручном выборе;
+   иначе он отсутствует, и тему определяет CSS prefers-color-scheme
+   (системная), а её отсутствие — светлая по умолчанию. */
+(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
 <style>
 /* ─────────────────────────────────────────────────────────────
    VTA Calcoferrit® — справочно-информационная полоса
-   Одна статичная страница, без внешних зависимостей.
-   Светлая и тёмная темы; JS — только для переключателя тем.
+   Одна страница, без внешних зависимостей. Светлая и тёмная темы;
+   минимум JS — только для запоминания ручного выбора темы.
    ───────────────────────────────────────────────────────────── */
 
 :root{
   color-scheme:light;
-
   --paper:#FBFAF6;
   --paper-sunk:#F4F2EC;
   --ink:#16181C;
@@ -38,33 +39,44 @@
 }
 
 /* ── Тёмная тема ─────────────────────────────────────────────
-   Тёмные токены применяются в двух случаях:
-   1) ручной выбор — :root[data-theme="dark"];
-   2) системная тёмная тема, если пользователь не выбрал светлую вручную.
-   Ручной выбор «light» всегда оставляет базовую светлую палитру. */
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --paper:#14171B;
-  --paper-sunk:#1B1F24;
-  --ink:#ECE9E1;
-  --muted:#99A0A8;
-  --rule:#333941;
-  --rule-soft:#282D33;
-  --accent:#64B7B1;
-  --accent-tint:#16302E;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
+   Приоритет разрешения темы:
+     1) ручной выбор пользователя — атрибут data-theme на <html>;
+     2) системная тема устройства — prefers-color-scheme;
+     3) светлая по умолчанию — значения :root выше.
+   Тёмные токены заданы только для экрана (screen), поэтому печать
+   всегда выходит в светлом варианте. Два блока держать синхронно. */
+@media screen{
+  :root[data-theme="dark"]{
     color-scheme:dark;
-    --paper:#14171B;
-    --paper-sunk:#1B1F24;
-    --ink:#ECE9E1;
-    --muted:#99A0A8;
-    --rule:#333941;
-    --rule-soft:#282D33;
-    --accent:#64B7B1;
-    --accent-tint:#16302E;
+    --paper:#1B1B19;
+    --paper-sunk:#232320;
+    --ink:#ECE8DE;
+    --muted:#A2A39B;
+    --rule:#3A3A34;
+    --rule-soft:#2B2B26;
+    --accent:#63B5AB;
+    --accent-tint:#18302D;
   }
+  :root[data-theme="dark"] .finale{background:#14403C;color:var(--ink)}
+}
+@media screen and (prefers-color-scheme:dark){
+  :root:not([data-theme]){
+    color-scheme:dark;
+    --paper:#1B1B19;
+    --paper-sunk:#232320;
+    --ink:#ECE8DE;
+    --muted:#A2A39B;
+    --rule:#3A3A34;
+    --rule-soft:#2B2B26;
+    --accent:#63B5AB;
+    --accent-tint:#18302D;
+  }
+  :root:not([data-theme]) .finale{background:#14403C;color:var(--ink)}
+}
+
+/* Плавная смена темы; отключается при prefers-reduced-motion */
+@media (prefers-reduced-motion:no-preference){
+  body,.finale{transition:background-color .35s ease,color .35s ease}
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -82,17 +94,6 @@ body{
   font-variant-numeric:oldstyle-nums;
   text-rendering:optimizeLegibility;
   -webkit-font-smoothing:antialiased;
-}
-
-/* Мягкая смена темы. Начальная тема выставляется до отрисовки,
-   поэтому переход срабатывает только при ручном переключении. */
-body,
-.summary,.claims__item,.measurement,.chapter,.colophon,
-table,th,td,.theme-toggle,.pull,.measurement__plot{
-  transition:background-color .25s ease, border-color .25s ease, color .25s ease;
-}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{transition:none !important}
 }
 
 .sheet{
@@ -127,6 +128,11 @@ p:last-child{margin-bottom:0}
   max-width:56ch;
   margin:0 auto 18px;
   font-variant-numeric:normal;
+}
+/* на узких экранах центрированный микротекст мог бы зайти под
+   угловой переключатель — добавляем боковые поля для клиренса */
+@media (max-width:680px){
+  .masthead__service{padding:0 46px}
 }
 
 .masthead__title{
@@ -318,18 +324,12 @@ p:last-child{margin-bottom:0}
 .figure{
   margin:clamp(34px,4.4vw,56px) 0 0;
 }
+/* Схема — самостоятельная светлая иллюстрация в обеих темах
+   (как и растровые протоколы измерений на белом фоне): цвета
+   рамы и подписей фиксированы и не зависят от токенов темы. */
 .figure__frame{
-  /* Схема — «смонтированная» светлая плашка в обеих темах: часть заливок
-     задана жёстко, а скриншоты рядом — светлые растры. Поэтому здесь
-     локально закрепляются светлые токены, и рисунок всегда читается
-     как приклеенная к полосе иллюстрация, а не инвертируется. */
-  --paper-sunk:#F4F2EC;
-  --ink:#16181C;
-  --muted:#5B6169;
-  --accent:#14504E;
-  --rule:#DCD7CC;
-  background:var(--paper-sunk);
-  border:1px solid var(--rule);
+  background:#F4F2EC;
+  border:1px solid #DCD7CC;
   padding:clamp(12px,2vw,28px);
 }
 .figure svg{display:block;width:100%;height:auto}
@@ -347,14 +347,14 @@ p:last-child{margin-bottom:0}
 
 /* Подписи внутри схемы */
 .dgm text{font-family:var(--sans);font-variant-numeric:lining-nums}
-.dgm .d-lab{font-size:21px;font-weight:500;fill:var(--ink)}
-.dgm .d-ac{font-size:18px;font-weight:600;letter-spacing:.12em;fill:var(--accent)}
-.dgm .d-f{font-family:var(--serif);font-size:25px;font-weight:600;fill:var(--ink)}
+.dgm .d-lab{font-size:21px;font-weight:500;fill:#16181C}
+.dgm .d-ac{font-size:18px;font-weight:600;letter-spacing:.12em;fill:#14504E}
+.dgm .d-f{font-family:var(--serif);font-size:25px;font-weight:600;fill:#16181C}
 .dgm .d-f--sm{font-size:22px}
-.dgm .d-sm{font-size:17px;font-weight:500;fill:var(--muted)}
-.dgm .d-bub{font-size:12px;font-weight:600;fill:var(--accent)}
-.dgm .d-line{stroke:var(--accent);fill:none}
-.dgm .d-leader{stroke:var(--rule);stroke-width:1.3;fill:none}
+.dgm .d-sm{font-size:17px;font-weight:500;fill:#5B6169}
+.dgm .d-bub{font-size:12px;font-weight:600;fill:#14504E}
+.dgm .d-line{stroke:#14504E;fill:none}
+.dgm .d-leader{stroke:#DCD7CC;stroke-width:1.3;fill:none}
 
 /* ── Врезка-цитата ──────────────────────────────────────────── */
 .pull{
@@ -443,9 +443,6 @@ tbody tr:last-child td{border-bottom:1px solid var(--rule)}
 .unit::before{content:", "}
 
 .measurement__plot{
-  /* Белый скриншот-протокол смонтирован на светлой плашке в обеих темах;
-     светлая рамка сохраняется, чтобы плашка не «висела» на тёмной полосе. */
-  --rule:#DCD7CC;
   margin:clamp(20px,2.6vw,32px) 0 0;
   background:#fff;
   border:1px solid var(--rule);
@@ -485,10 +482,8 @@ tbody tr:last-child td{border-bottom:1px solid var(--rule)}
 .finale{
   margin-top:clamp(64px,8vw,116px);
   padding:clamp(40px,5.4vw,72px) clamp(24px,4vw,56px);
-  /* Глубокий петролевый блок с тёплым белым — одинаково в обеих темах:
-     на тёмной полосе он читается как насыщенный акцент, а не светлеет. */
-  background:#14504E;
-  color:#FBFAF6;
+  background:var(--accent);
+  color:var(--paper);
   text-align:center;
 }
 .finale__title{
@@ -543,36 +538,35 @@ tbody tr:last-child td{border-bottom:1px solid var(--rule)}
 /* ── Переключатель темы ─────────────────────────────────────── */
 .theme-toggle{
   position:fixed;
-  top:14px;
-  right:14px;
+  top:14px;right:14px;
   z-index:50;
-  width:40px;
-  height:40px;
+  width:40px;height:40px;
+  padding:0;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding:0;
   border:1px solid var(--rule);
   border-radius:50%;
   background:var(--paper);
   color:var(--accent);
   cursor:pointer;
-  box-shadow:0 1px 4px rgba(0,0,0,.10);
   -webkit-tap-highlight-color:transparent;
+  box-shadow:0 2px 10px rgba(0,0,0,.10);
 }
 .theme-toggle:hover{border-color:var(--accent)}
-.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.theme-toggle__icon{width:20px;height:20px;display:block}
-
-/* Значок отражает действующую тему тем же каскадом, что и палитра,
-   поэтому он верен ещё до запуска JS (в том числе в системном режиме). */
-.icon-sun{display:none}
-.icon-moon{display:block}
-:root[data-theme="dark"] .icon-sun{display:block}
-:root[data-theme="dark"] .icon-moon{display:none}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.theme-toggle svg{width:20px;height:20px;display:block}
+.theme-toggle .icon-sun{display:none}
+.theme-toggle .icon-moon{display:block}
+@media (prefers-reduced-motion:no-preference){
+  .theme-toggle{transition:color .2s ease,border-color .2s ease,background-color .2s ease}
+}
+/* Иконка отражает активную тему — та же логика приоритета, что и токены */
+:root[data-theme="dark"] .theme-toggle .icon-sun{display:block}
+:root[data-theme="dark"] .theme-toggle .icon-moon{display:none}
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .icon-sun{display:block}
-  :root:not([data-theme="light"]) .icon-moon{display:none}
+  :root:not([data-theme]) .theme-toggle .icon-sun{display:block}
+  :root:not([data-theme]) .theme-toggle .icon-moon{display:none}
 }
 
 /* ── Адаптив ────────────────────────────────────────────────── */
@@ -592,10 +586,6 @@ tbody tr:last-child td{border-bottom:1px solid var(--rule)}
 
 @media (max-width:560px){
   .lead{max-width:24ch}
-
-  /* Служебная строка по центру на узком экране дотягивается до угла —
-     освобождаем сверху место под фиксированный переключатель темы. */
-  .masthead{padding-top:60px}
 
   .claims{grid-template-columns:minmax(0,1fr)}
   .claims__item{border-left:0;padding-left:0;padding-right:0}
@@ -628,20 +618,6 @@ tbody tr:last-child td{border-bottom:1px solid var(--rule)}
 /* ── Печать ─────────────────────────────────────────────────── */
 @media print{
   @page{margin:16mm}
-  /* Печать всегда в светлой палитре, даже если на экране выбрана тёмная
-     тема: селектор перекрывает и ручной выбор, и системную тёмную. */
-  :root,
-  :root:not([data-theme="light"]){
-    color-scheme:light;
-    --paper:#fff;
-    --paper-sunk:#F4F2EC;
-    --ink:#16181C;
-    --muted:#5B6169;
-    --rule:#DCD7CC;
-    --rule-soft:#E7E3DA;
-    --accent:#14504E;
-    --accent-tint:#E9EFEE;
-  }
   .theme-toggle{display:none}
   body{background:#fff;font-size:10.5pt;line-height:1.5}
   .sheet{max-width:none;padding:0}
@@ -656,25 +632,15 @@ tbody tr:last-child td{border-bottom:1px solid var(--rule)}
 </style>
 </head>
 <body>
-
-  <!-- Переключатель темы. Единственный интерактивный элемент; при печати скрыт.
-       Значок задаётся тем же CSS-каскадом, что и палитра, и верен до старта JS. -->
-  <button type="button" class="theme-toggle" id="themeToggle"
-          role="switch" aria-checked="false"
-          aria-label="Переключить на тёмную тему" title="Тёмная тема">
-    <svg class="theme-toggle__icon icon-moon" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-         stroke-linejoin="round" aria-hidden="true" focusable="false">
-      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
-    </svg>
-    <svg class="theme-toggle__icon icon-sun" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-         stroke-linejoin="round" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="4.2"/>
-      <path d="M12 2.6v2.4M12 19v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.6 12h2.4M19 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/>
-    </svg>
-  </button>
-
+<button type="button" class="theme-toggle" id="themeToggle" aria-label="Тёмная тема" aria-pressed="false" title="Переключить тему">
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+  </svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4.2"/>
+    <path d="M12 2v2.6M12 19.4V22M4.2 4.2l1.9 1.9M17.9 17.9l1.9 1.9M2 12h2.6M19.4 12H22M4.2 19.8l1.9-1.9M17.9 6.1l1.9-1.9"/>
+  </svg>
+</button>
 <main class="sheet">
 
   <!-- ═══ Шапка полосы ═══════════════════════════════════════ -->
@@ -1080,44 +1046,37 @@ tbody tr:last-child td{border-bottom:1px solid var(--rule)}
 
 </main>
 
-<!-- Логика переключателя. Разрешение темы по нисходящему приоритету:
-     сохранённый ручной выбор (data-theme + localStorage) → системная тема
-     (prefers-color-scheme) → светлая по умолчанию. Ручной выбор переопределяет
-     систему и сохраняется между визитами. -->
 <script>
+/* Управление переключателем темы.
+   Действующая тема = ручной выбор (data-theme), иначе системная. */
 (function(){
-  var KEY='vta-theme',
-      root=document.documentElement,
-      btn=document.getElementById('themeToggle'),
-      mq=window.matchMedia('(prefers-color-scheme: dark)');
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  if(!btn) return;
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
 
-  // Действующая тема: ручной выбор, иначе — системная.
   function effective(){
-    return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light');
+    var a = root.getAttribute('data-theme');
+    return a ? a : (mq.matches ? 'dark' : 'light');
   }
-
-  // Синхронизация состояния кнопки с действующей темой.
-  function sync(){
-    var dark = effective()==='dark';
-    btn.setAttribute('aria-checked', dark ? 'true' : 'false');
-    btn.setAttribute('aria-label', dark ? 'Переключить на светлую тему' : 'Переключить на тёмную тему');
-    btn.setAttribute('title', dark ? 'Светлая тема' : 'Тёмная тема');
+  function syncButton(){
+    var dark = effective() === 'dark';
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Светлая тема' : 'Тёмная тема');
   }
+  syncButton();
 
-  // Ручное переключение: фиксируем противоположную тему и запоминаем выбор.
   btn.addEventListener('click', function(){
-    var next = effective()==='dark' ? 'light' : 'dark';
+    var next = effective() === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
-    try{ localStorage.setItem(KEY, next); }catch(e){}
-    sync();
+    try{ localStorage.setItem('theme', next); }catch(e){}
+    syncButton();
   });
 
-  // Пока ручной выбор не сделан, следуем за сменой системной темы.
-  var onChange=function(){ if(!root.getAttribute('data-theme')) sync(); };
-  if(mq.addEventListener) mq.addEventListener('change', onChange);
-  else if(mq.addListener) mq.addListener(onChange);
-
-  sync();
+  /* Пока ручной выбор не сделан — следуем за сменой системной темы. */
+  function onSystemChange(){ if(!root.getAttribute('data-theme')) syncButton(); }
+  if(mq.addEventListener) mq.addEventListener('change', onSystemChange);
+  else if(mq.addListener) mq.addListener(onSystemChange);
 })();
 </script>
 </body>
